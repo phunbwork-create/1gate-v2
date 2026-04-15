@@ -1,5 +1,5 @@
 # TASK CONTEXT — 1Gate System
-_Cập nhật lần cuối: 2026-04-15_
+_Cập nhật lần cuối: 2026-04-16_
 
 ## ĐANG LÀM (Current Task)
 **Phase 1 — Core Foundation Setup**
@@ -7,73 +7,68 @@ _Cập nhật lần cuối: 2026-04-15_
 **Trạng thái:** 🔄 IN PROGRESS
 
 ## ĐÃ HOÀN THÀNH ✅
-- [x] Clone repo (empty)
-- [x] Tạo TASK_CONTEXT.md
+- [x] Next.js 16 scaffold + TypeScript + Tailwind
+- [x] Tất cả dependencies (prisma, next-auth, resend, zod, react-hook-form, shadcn...)
+- [x] shadcn/ui init + 15 components
+- [x] Prisma schema: Company, Department, Role, Permission, User, Account, Session, NotificationChannel, Notification, AuditLog
+- [x] prisma.config.ts (load .env.local via @next/env)
+- [x] NextAuth v5: src/lib/auth.ts (Credentials + JWT)
+- [x] Middleware: src/middleware.ts (route protection)
+- [x] API route: src/app/api/auth/[...nextauth]/route.ts
+- [x] Notification infra: resend.ts, telegram.ts, notifications.ts (SSE + email + telegram)
+- [x] SSE endpoint: src/app/api/notifications/sse/route.ts
+- [x] Telegram webhook: src/app/api/webhooks/telegram/route.ts
+- [x] Prisma seed: prisma/seed.ts (2 cty, 8 roles, 10 users, permissions)
+- [x] Types: src/types/index.ts
+- [x] Schemas: src/schemas/auth.schema.ts
+- [x] CLAUDE.md (Next.js 16 breaking changes guide)
+- [x] .env.example, .env.local (Telegram token đã điền)
 
 ## ĐANG DỞ 🔄
-- [ ] Khởi tạo Next.js 14 App Router + TypeScript
-- [ ] Cài shadcn/ui + Tailwind
-- [ ] Cấu hình Prisma schema (User, Company, Department, Role, Permission, AuditLog, Notification)
-- [ ] Setup NextAuth v5
-- [ ] Notification infrastructure (Resend email, Telegram Bot, SSE)
-- [ ] Seed data
-- [ ] Tests
+- [ ] Jest config + test scripts trong package.json
+- [ ] next-auth.d.ts (TypeScript type augmentation)
+- [ ] Viết tests: auth, notifications, rbac
+- [ ] UI: Login page
+- [ ] UI: App layout (sidebar + header)
+- [ ] UI: Dashboard page
+- [ ] Notification bell component (SSE consumer)
+- [ ] Push lên git + tạo PR
 
 ## VIỆC TIẾP THEO 📋
-1. `npx create-next-app@latest` với TypeScript + Tailwind + App Router
-2. Cài dependencies: prisma, @prisma/client, next-auth, resend, zod, react-hook-form
-3. Cài shadcn/ui
-4. Viết `prisma/schema.prisma`
-5. Viết `prisma/seed.ts`
-6. Setup NextAuth
-7. Viết tests
-8. Push + PR
+1. Thêm seed script vào package.json
+2. Viết jest.config.ts
+3. Viết next-auth.d.ts
+4. Viết tests: src/__tests__/auth.test.ts, rbac.test.ts, notifications.test.ts
+5. Viết Login page UI
+6. Viết App layout với sidebar
+7. Viết Dashboard page
+8. Viết NotificationBell component (SSE)
+9. Push: develop branch → feature/phase1-core-setup → PR
 
 ## QUYẾT ĐỊNH ĐÃ CHỐT 📌
-- Framework: Next.js 14 App Router
+- Framework: Next.js 16 App Router + React 19
 - DB: PostgreSQL trên Neon (serverless)
-- ORM: Prisma
-- Auth: NextAuth v5 (Auth.js)
-- UI: shadcn/ui + Tailwind CSS
-- Form: React Hook Form + Zod
-- File storage: Vercel Blob
-- Email: Resend
-- Telegram: Telegram Bot API (webhook)
-- Realtime notify: SSE (Server-Sent Events)
-- Cron: Vercel Cron
-- Test: Jest + Supertest + Playwright
+- ORM: Prisma 7
+- Auth: NextAuth v5 (Auth.js beta)
+- UI: shadcn/ui + Tailwind CSS v4
+- Notification: Resend (email) + Telegram Bot API + SSE (web)
+- Test: Jest + ts-jest + supertest
 
-## PHÂN QUYỀN (RBAC Roles)
-- SUPER_ADMIN: toàn quyền
-- ADMIN: quản trị hệ thống trong công ty
-- DIRECTOR: duyệt cuối (kế hoạch chi > 5tr)
-- ACCOUNTANT: kế toán, lập kế hoạch chi, thanh toán
-- DEPT_HEAD: trưởng bộ phận, duyệt cấp 1
-- PURCHASER: bộ phận mua hàng, ẩn giá hợp đồng
-- WAREHOUSE: thủ kho, ẩn giá hợp đồng
-- EMPLOYEE: nhân viên, tạo đề xuất
-
-## APPROVAL LOGIC
-- < 1,000,000 VND: DEPT_HEAD
-- 1,000,000 – 5,000,000 VND: DEPT_HEAD → ACCOUNTANT
-- > 5,000,000 VND: DEPT_HEAD → ACCOUNTANT → DIRECTOR
+## ENV VARS STATUS
+- DATABASE_URL: ❌ cần tạo Neon DB
+- NEXTAUTH_SECRET: ❌ cần generate
+- RESEND_API_KEY: ❌ cần tạo account resend.com
+- TELEGRAM_BOT_TOKEN: ✅ đã có (8562850963:AAHHJDoQiyDqRfxEKrP08F6dXRlLso1HEwE)
+- TELEGRAM_CHAT_ID: ❌ cần user dùng /chatid trong bot
 
 ## FILES QUAN TRỌNG 📁
-- `prisma/schema.prisma` — DB schema
-- `prisma/seed.ts` — Seed data
-- `src/lib/prisma.ts` — Prisma client
-- `src/lib/auth.ts` — NextAuth config
-- `src/lib/notifications.ts` — Notification service
-- `src/middleware.ts` — Route protection
-
-## LỆNH VERIFY
-```bash
-npx prisma migrate dev
-npx prisma db seed
-npm test
-npm run dev
-```
+- prisma/schema.prisma
+- prisma/seed.ts
+- src/lib/prisma.ts
+- src/lib/auth.ts
+- src/lib/notifications.ts
+- src/middleware.ts
 
 ## BLOCKERS ⚠️
-- Cần user cung cấp: NEON_DATABASE_URL, RESEND_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
-- Vercel project cần được connect với repo trên Vercel dashboard
+- DATABASE_URL chưa có → chưa chạy được migrate/seed/tests thật
+- Vercel chưa connect repo
