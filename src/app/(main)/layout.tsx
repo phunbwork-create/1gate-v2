@@ -41,46 +41,53 @@ export default async function MainLayout({
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-14 border-b bg-card flex items-center justify-end px-4 gap-2 shrink-0">
-          <NotificationBell />
+        <header className="h-14 border-b bg-card flex items-center justify-between px-6 shrink-0">
+          {/* Breadcrumb placeholder */}
+          <div />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <button className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors" />
-              }
-            >
-              <Avatar className="h-7 w-7">
-                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:inline">{user.name}</span>
-            </DropdownMenuTrigger>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
 
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel className="font-normal">
-                <p className="text-sm font-medium">{user.name}</p>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: "/login" });
-                  }}
-                  className="w-full"
-                >
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 w-full text-left"
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors" />
+                }
+              >
+                <Avatar className="h-7 w-7">
+                  <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline text-sm">{user.name}</span>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel className="font-normal">
+                  <p className="text-sm font-medium">{user.name}</p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <form
+                    action={async () => {
+                      "use server";
+                      await signOut({ redirectTo: "/login" });
+                    }}
+                    className="w-full"
                   >
-                    <LogOut className="h-4 w-4" />
-                    Đăng xuất
-                  </button>
-                </form>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    <button
+                      type="submit"
+                      className="flex items-center gap-2 w-full text-left text-sm"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Đăng xuất
+                    </button>
+                  </form>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </header>
 
         {/* Page content */}
