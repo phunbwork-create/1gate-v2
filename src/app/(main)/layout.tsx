@@ -49,17 +49,15 @@ export default async function MainLayout({
             <NotificationBell />
 
             <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <button className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors" />
-                }
-              >
-                <Avatar className="h-7 w-7">
-                  <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden sm:inline text-sm">{user.name}</span>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors">
+                  <Avatar className="h-7 w-7">
+                    <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline text-sm">{user.name}</span>
+                </button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-52">

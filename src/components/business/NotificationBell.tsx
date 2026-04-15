@@ -76,21 +76,19 @@ export function NotificationBell() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <button className="relative p-2 rounded-md hover:bg-accent transition-colors" />
-        }
-      >
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <Badge
-            variant="destructive"
-            className="absolute -top-0.5 -right-0.5 h-4 w-4 p-0 flex items-center justify-center text-[9px]"
-          >
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </Badge>
-        )}
-        <span className="sr-only">Thông báo</span>
+      <DropdownMenuTrigger asChild>
+        <button className="relative p-2 rounded-md hover:bg-accent transition-colors">
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-0.5 -right-0.5 h-4 w-4 p-0 flex items-center justify-center text-[9px]"
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Badge>
+          )}
+          <span className="sr-only">Thông báo</span>
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-80">
