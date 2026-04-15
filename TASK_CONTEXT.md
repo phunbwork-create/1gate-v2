@@ -1,79 +1,81 @@
 # TASK CONTEXT — 1Gate System
-_Cập nhật lần cuối: 2026-04-15_
+_Cập nhật lần cuối: 2026-04-16_
 
-## ĐANG LÀM (Current Task)
-**Phase 1 — Core Foundation Setup**
-**Nhánh:** `feature/phase1-core-setup`
-**Trạng thái:** 🔄 IN PROGRESS
+## PHASE 1 — HOÀN THÀNH ✅
+**Nhánh:** `feature/phase1-core-setup` → `develop`
+**Trạng thái:** ✅ DONE — chờ bạn review + setup env vars
 
 ## ĐÃ HOÀN THÀNH ✅
-- [x] Clone repo (empty)
-- [x] Tạo TASK_CONTEXT.md
+- [x] Next.js 16 + TypeScript + Tailwind v4 + shadcn/ui (Base UI)
+- [x] Prisma 7 schema: 10 models (Company, Department, Role, Permission, User, Account, Session, NotificationChannel, Notification, AuditLog)
+- [x] prisma.config.ts (load .env.local, Prisma 7 compatible)
+- [x] NextAuth v5: JWT strategy, Credentials + bcrypt, session types
+- [x] Middleware: route protection, redirect to /login
+- [x] Notification: Resend email + Telegram Bot API + SSE realtime
+- [x] API: /api/notifications, /api/notifications/sse, /api/notifications/read-all, /api/webhooks/telegram
+- [x] UI: Login page, App layout (sidebar + header), Dashboard, NotificationBell
+- [x] Seed: 2 companies (CTM, CTVA), 8 roles, 10 users, RBAC permissions
+- [x] Tests: 37/37 passing (auth.test, rbac.test, notifications.test)
+- [x] TypeScript: 0 errors
+- [x] Git: pushed develop + feature/phase1-core-setup
 
-## ĐANG DỞ 🔄
-- [ ] Khởi tạo Next.js 14 App Router + TypeScript
-- [ ] Cài shadcn/ui + Tailwind
-- [ ] Cấu hình Prisma schema (User, Company, Department, Role, Permission, AuditLog, Notification)
-- [ ] Setup NextAuth v5
-- [ ] Notification infrastructure (Resend email, Telegram Bot, SSE)
-- [ ] Seed data
-- [ ] Tests
+## VIỆC CẦN LÀM TRƯỚC KHI CHẠY ⚠️
 
-## VIỆC TIẾP THEO 📋
-1. `npx create-next-app@latest` với TypeScript + Tailwind + App Router
-2. Cài dependencies: prisma, @prisma/client, next-auth, resend, zod, react-hook-form
-3. Cài shadcn/ui
-4. Viết `prisma/schema.prisma`
-5. Viết `prisma/seed.ts`
-6. Setup NextAuth
-7. Viết tests
-8. Push + PR
+### 1. Tạo Neon Database (miễn phí)
+1. Vào https://neon.tech → Sign up
+2. Create project → Copy "Connection string"
+3. Điền vào `.env.local`: `DATABASE_URL="postgresql://..."`
+4. Thêm `DIRECT_URL` (cũng từ Neon — "Pooler" connection)
 
-## QUYẾT ĐỊNH ĐÃ CHỐT 📌
-- Framework: Next.js 14 App Router
-- DB: PostgreSQL trên Neon (serverless)
-- ORM: Prisma
-- Auth: NextAuth v5 (Auth.js)
-- UI: shadcn/ui + Tailwind CSS
-- Form: React Hook Form + Zod
-- File storage: Vercel Blob
-- Email: Resend
-- Telegram: Telegram Bot API (webhook)
-- Realtime notify: SSE (Server-Sent Events)
-- Cron: Vercel Cron
-- Test: Jest + Supertest + Playwright
-
-## PHÂN QUYỀN (RBAC Roles)
-- SUPER_ADMIN: toàn quyền
-- ADMIN: quản trị hệ thống trong công ty
-- DIRECTOR: duyệt cuối (kế hoạch chi > 5tr)
-- ACCOUNTANT: kế toán, lập kế hoạch chi, thanh toán
-- DEPT_HEAD: trưởng bộ phận, duyệt cấp 1
-- PURCHASER: bộ phận mua hàng, ẩn giá hợp đồng
-- WAREHOUSE: thủ kho, ẩn giá hợp đồng
-- EMPLOYEE: nhân viên, tạo đề xuất
-
-## APPROVAL LOGIC
-- < 1,000,000 VND: DEPT_HEAD
-- 1,000,000 – 5,000,000 VND: DEPT_HEAD → ACCOUNTANT
-- > 5,000,000 VND: DEPT_HEAD → ACCOUNTANT → DIRECTOR
-
-## FILES QUAN TRỌNG 📁
-- `prisma/schema.prisma` — DB schema
-- `prisma/seed.ts` — Seed data
-- `src/lib/prisma.ts` — Prisma client
-- `src/lib/auth.ts` — NextAuth config
-- `src/lib/notifications.ts` — Notification service
-- `src/middleware.ts` — Route protection
-
-## LỆNH VERIFY
+### 2. Generate NEXTAUTH_SECRET
 ```bash
-npx prisma migrate dev
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+Điền vào `.env.local`: `NEXTAUTH_SECRET="..."`
+
+### 3. Tạo Resend account (miễn phí)
+1. Vào https://resend.com → Sign up
+2. Create API Key → Copy
+3. Điền: `RESEND_API_KEY="re_..."`
+
+### 4. Setup Telegram CHAT_ID
+1. Mở Telegram → tìm bot `@phunb_bot`
+2. Gõ `/chatid`
+3. Copy ID nhận được → điền `TELEGRAM_CHAT_ID="-100..."`
+
+### 5. Chạy migration + seed
+```bash
+npx prisma migrate dev --name init
 npx prisma db seed
-npm test
-npm run dev
 ```
 
-## BLOCKERS ⚠️
-- Cần user cung cấp: NEON_DATABASE_URL, RESEND_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
-- Vercel project cần được connect với repo trên Vercel dashboard
+### 6. Connect Vercel
+1. Vào https://vercel.com → New Project → Import `phunbwork-create/1gate-v2`
+2. Set env vars (từ .env.local)
+3. Deploy
+
+## PHASE 2 — TIẾP THEO
+**Nhánh sẽ tạo:** `feature/phase2-procurement`
+**Nội dung:**
+- F-02: Kế hoạch Đầu tư / Mua sắm (form + workflow)
+- F-03: Đề nghị Cấp vật tư nội bộ
+- F-04: Đề nghị Mua hàng (PR) + Thủ kho xác nhận tồn kho
+
+## TEST ACCOUNTS
+| Email | Role | Password |
+|-------|------|----------|
+| superadmin@ctm.vn | Super Admin | Password@123 |
+| admin@ctm.vn | Admin | Password@123 |
+| giamdoc@ctm.vn | Giám đốc | Password@123 |
+| ketoan@ctm.vn | Kế toán | Password@123 |
+| truongbp@ctm.vn | Trưởng bộ phận | Password@123 |
+| muahang@ctm.vn | Mua hàng | Password@123 |
+| thukho@ctm.vn | Thủ kho | Password@123 |
+| nhanvien@ctm.vn | Nhân viên | Password@123 |
+
+## ENV VARS STATUS
+- DATABASE_URL: ❌ cần tạo Neon DB
+- NEXTAUTH_SECRET: ❌ cần generate
+- RESEND_API_KEY: ❌ cần tạo Resend account
+- TELEGRAM_BOT_TOKEN: ✅ 8562850963:AAHHJDoQiyDqRfxEKrP08F6dXRlLso1HEwE
+- TELEGRAM_CHAT_ID: ❌ dùng /chatid trong bot
