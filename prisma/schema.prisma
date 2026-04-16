@@ -23,6 +23,28 @@ enum RoleName {
   EMPLOYEE
 }
 
+enum ProcurementPlanStatus {
+  DRAFT
+  SUBMITTED
+  DEPT_HEAD_APPROVED
+  DIRECTOR_APPROVED
+  REJECTED
+}
+
+enum MaterialRequestStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum PurchaseRequestStatus {
+  DRAFT
+  SUBMITTED
+  RECEIVED
+  COMPLETED
+}
+
 enum NotificationType {
   SUBMISSION
   APPROVAL
@@ -42,8 +64,11 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  departments Department[]
-  users       User[]
+  departments      Department[]
+  users            User[]
+  procurementPlans ProcurementPlan[]
+  materialRequests MaterialRequest[]
+  purchaseRequests PurchaseRequest[]
 
   @@map("companies")
 }
@@ -58,7 +83,10 @@ model Department {
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  users     User[]
+  users            User[]
+  procurementPlans ProcurementPlan[]
+  materialRequests MaterialRequest[]
+  purchaseRequests PurchaseRequest[]
 
   @@unique([companyId, code])
   @@map("departments")
@@ -111,6 +139,15 @@ model User {
   auditLogs           AuditLog[]
   sessions            Session[]
   accounts            Account[]
+
+  // Procurement relations
+  procurementPlansRequested     ProcurementPlan[]    @relation("ProcurementPlanRequester")
+  procurementPlansDeptHead      ProcurementPlan[]    @relation("ProcurementPlanDeptHead")
+  procurementPlansDirector      ProcurementPlan[]    @relation("ProcurementPlanDirector")
+  materialRequestsRequested     MaterialRequest[]    @relation("MaterialRequestRequester")
+  materialRequestsApproved      MaterialRequest[]    @relation("MaterialRequestApprover")
+  purchaseRequestsRequested     PurchaseRequest[]    @relation("PurchaseRequestRequester")
+  purchaseRequestsReceived      PurchaseRequest[]    @relation("PurchaseRequestReceiver")
 
   @@map("users")
 }
@@ -209,4 +246,146 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([userId, createdAt])
   @@map("audit_logs")
+}
+
+// ─── Phase 2: Procurement ─────────────────────────────────────────────────────
+
+model ProcurementPlan {
+  id             String                @id @default(cuid())
+  code           String                @unique
+  title          String
+  description    String?
+  totalAmount    Decimal?              @db.Decimal(15, 2)
+  status         ProcurementPlanStatus @default(DRAFT)
+  rejectedReason String?
+
+  requestedById String
+  requestedBy   User   @relation("ProcurementPlanRequester", fields: [requestedById], references: [id])
+
+  approvedByDeptHeadId String?
+  approvedByDeptHead   User?     @relation("ProcurementPlanDeptHead", fields: [approvedByDeptHeadId], references: [id])
+  approvedByDeptHeadAt DateTime?
+
+  approvedByDirectorId String?
+  approvedByDirector   User?     @relation("ProcurementPlanDirector", fields: [approvedByDirectorId], references: [id])
+  approvedByDirectorAt DateTime?
+
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  items            ProcurementPlanItem[]
+  materialRequests MaterialRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId, status])
+  @@index([requestedById])
+  @@map("procurement_plans")
+}
+
+model ProcurementPlanItem {
+  id             String   @id @default(cuid())
+  itemName       String
+  quantity       Decimal  @db.Decimal(10, 3)
+  unit           String
+  estimatedPrice Decimal? @db.Decimal(15, 2)
+  note           String?
+
+  planId String
+  plan   ProcurementPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@map("procurement_plan_items")
+}
+
+model MaterialRequest {
+  id             String                @id @default(cuid())
+  code           String                @unique
+  title          String
+  description    String?
+  status         MaterialRequestStatus @default(DRAFT)
+  rejectedReason String?
+
+  planId String?
+  plan   ProcurementPlan? @relation(fields: [planId], references: [id])
+
+  requestedById String
+  requestedBy   User   @relation("MaterialRequestRequester", fields: [requestedById], references: [id])
+
+  approvedById String?
+  approvedBy   User?     @relation("MaterialRequestApprover", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
+
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  items            MaterialRequestItem[]
+  purchaseRequests PurchaseRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId, status])
+  @@map("material_requests")
+}
+
+model MaterialRequestItem {
+  id       String  @id @default(cuid())
+  itemName String
+  quantity Decimal @db.Decimal(10, 3)
+  unit     String
+  note     String?
+
+  requestId String
+  request   MaterialRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("material_request_items")
+}
+
+model PurchaseRequest {
+  id             String                @id @default(cuid())
+  code           String                @unique
+  stockCheckNote String?
+  status         PurchaseRequestStatus @default(DRAFT)
+
+  materialRequestId String?
+  materialRequest   MaterialRequest? @relation(fields: [materialRequestId], references: [id])
+
+  requestedById String
+  requestedBy   User   @relation("PurchaseRequestRequester", fields: [requestedById], references: [id])
+
+  receivedById String?
+  receivedBy   User?     @relation("PurchaseRequestReceiver", fields: [receivedById], references: [id])
+  receivedAt   DateTime?
+
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  items PurchaseRequestItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId, status])
+  @@map("purchase_requests")
+}
+
+model PurchaseRequestItem {
+  id             String   @id @default(cuid())
+  itemName       String
+  quantity       Decimal  @db.Decimal(10, 3)
+  unit           String
+  estimatedPrice Decimal? @db.Decimal(15, 2)
+  note           String?
+
+  purchaseRequestId String
+  purchaseRequest   PurchaseRequest @relation(fields: [purchaseRequestId], references: [id], onDelete: Cascade)
+
+  @@map("purchase_request_items")
 }
